@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -131,6 +131,207 @@
         {% endif %}
         {% endif %}
     </div>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #013a5c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            margin: 20px;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .right-panel iframe {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+        }
+
+        .info-section h3 {
+            margin-bottom: 10px;
+            color: #013a5c;
+        }
+
+        .message {
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>AI-powered Resume Screening System</h1>
+        <p>Upload your resume for instant analysis and job recommendations.</p>
+    </div>
+    <div class="container">
+        <div class="left-panel">
+            <h2>Upload Your Resume</h2>
+            <form action="/pred" method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="file" name="resume" id="resumeFile" accept=".pdf, .txt" required>
+                <input type="submit" value="Submit">
+            </form>
+
+            <div class="message">
+                {% if message %}
+                <p>{{ message }}</p>
+                {% endif %}
+            </div>
+
+            {% if predicted_category %}
+            <div class="info-section">
+                <h3>Resume Analysis Results</h3>
+                <p><strong>Category:</strong> {{ predicted_category }}</p>
+                <p><strong>Recommended Job:</strong> {{ recommended_job }}</p>
+                <hr>
+                <h3>Extracted Information</h3>
+                <p><strong>Name:</strong> {{ name }}</p>
+                <p><strong>Phone:</strong> {{ phone }}</p>
+                <p><strong>Email:</strong> {{ email }}</p>
+
+                {% if extracted_skills %}
+                <h3>Skills</h3>
+                <ul>
+                    {% for skill in extracted_skills %}
+                    <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if extracted_education %}
+                <h3>Education</h3>
+                <ul>
+                    {% for edu in extracted_education %}
+                    <li>{{ edu }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if projects %}
+                <h3>Projects</h3>
+                <ul>
+                    {% for project in projects %}
+                    <li>{{ project }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if experience %}
+                <h3>Experience</h3>
+                <ul>
+                    {% for exp in experience %}
+                    <li>{{ exp }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="right-panel" id="previewSection">
+            <h2>File Preview</h2>
+            <iframe id="filePreview" src="" type="application/pdf"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+        const previewFrame = document.getElementById("filePreview");
+        const previewSection = document.getElementById("previewSection");
+        const sideclass=document.getElementsByClassName("right-panel");
+
+        // Update preview when file is selected
+        document.getElementById("resumeFile").addEventListener("change", function () {
+            if (this.files.length > 0) {
+                const fileURL = URL.createObjectURL(this.files[0]);
+                previewFrame.src = fileURL;
+                sideclass.style.display="block";
+                previewSection.style.display = "block";
+            }
+        });
+
+        // Hide preview on form submission
+        form.addEventListener("submit", function () {
+            
+            previewSection.style.display = "none";
+        });
+    </script>
 </body>
 
 </html>
