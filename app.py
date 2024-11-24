@@ -222,6 +222,35 @@ def extract_name_from_resume(text):
 
     return name
 
+# Add new functions to extract projects and experience
+def extract_projects_from_resume(text):
+    projects = []
+
+    # Keywords or patterns to identify projects
+    project_keywords = ['project', 'projects', 'developed', 'built', 'designed', 'implemented', 'created', 'application', 'tool', 'framework']
+
+    # Split text into sentences and look for project-related terms
+    sentences = text.split('\n')
+    for sentence in sentences:
+        if any(keyword.lower() in sentence.lower() for keyword in project_keywords):
+            projects.append(sentence.strip())
+
+    return projects
+
+def extract_experience_from_resume(text):
+    experience = []
+
+    # Keywords or patterns to identify experience
+    experience_keywords = ['experience', 'worked', 'intern', 'internship', 'job', 'role', 'position', 'employment', 'responsibilities']
+
+    # Split text into sentences and look for experience-related terms
+    sentences = text.split('\n')
+    for sentence in sentences:
+        if any(keyword.lower() in sentence.lower() for keyword in experience_keywords):
+            experience.append(sentence.strip())
+
+    return experience
+
 
 
 
@@ -254,10 +283,25 @@ def pred():
         extracted_education = extract_education_from_resume(text)
         name = extract_name_from_resume(text)
 
-        return render_template('resume.html', predicted_category=predicted_category,recommended_job=recommended_job,
-                               phone=phone,name=name,email=email,extracted_skills=extracted_skills,extracted_education=extracted_education)
+        # Extract projects and experience
+        projects = extract_projects_from_resume(text)  # Assuming this function exists
+        experience = extract_experience_from_resume(text)  # Assuming this function exists
+
+        return render_template(
+            'resume.html',
+            predicted_category=predicted_category,
+            recommended_job=recommended_job,
+            phone=phone,
+            name=name,
+            email=email,
+            extracted_skills=extracted_skills,
+            extracted_education=extracted_education,
+            projects=projects,
+            experience=experience,
+        )
     else:
         return render_template("resume.html", message="No resume file uploaded.")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
