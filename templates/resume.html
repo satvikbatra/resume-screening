@@ -135,6 +135,7 @@
 
 </html> -->
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -304,7 +305,7 @@
             {% endif %}
         </div>
 
-        <div class="right-panel" id="previewSection">
+        <div class="right-panel" id="previewSection" style="display: none;">
             <h2>File Preview</h2>
             <iframe id="filePreview" src="" type="application/pdf"></iframe>
         </div>
@@ -314,24 +315,23 @@
         const form = document.getElementById("uploadForm");
         const previewFrame = document.getElementById("filePreview");
         const previewSection = document.getElementById("previewSection");
-        const sideclass=document.getElementsByClassName("right-panel");
 
         // Update preview when file is selected
         document.getElementById("resumeFile").addEventListener("change", function () {
             if (this.files.length > 0) {
                 const fileURL = URL.createObjectURL(this.files[0]);
                 previewFrame.src = fileURL;
-                sideclass.style.display="block";
                 previewSection.style.display = "block";
             }
         });
 
         // Hide preview on form submission
-        form.addEventListener("submit", function () {
-            
+        form.addEventListener("submit", function (event) {
             previewSection.style.display = "none";
         });
     </script>
 </body>
+
+</html>
 
 </html>
