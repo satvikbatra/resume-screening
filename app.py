@@ -2,8 +2,14 @@ from flask import Flask, request, render_template
 from PyPDF2 import PdfReader
 import re
 import pickle
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+load_dotenv()
+
 
 app = Flask(__name__)
+api_key = os.getenv("GOOGLE_GENAI_API_KEY")
 
 # Load models===========================================================================================================
 rf_classifier_categorization = pickle.load(open('models/rf_classifier_categorization.pkl', 'rb'))
@@ -263,7 +269,6 @@ def resume():
 
 @app.route('/pred', methods=['POST'])
 def pred():
-    # Process the PDF or TXT file and make prediction
     if 'resume' in request.files:
         file = request.files['resume']
         filename = file.filename
@@ -274,18 +279,27 @@ def pred():
         else:
             return render_template('resume.html', message="Invalid file format. Please upload a PDF or TXT file.")
 
+        # Extract information
         predicted_category = predict_category(text)
         recommended_job = job_recommendation(text)
         phone = extract_contact_number_from_resume(text)
         email = extract_email_from_resume(text)
-
+        name = extract_name_from_resume(text)
         extracted_skills = extract_skills_from_resume(text)
         extracted_education = extract_education_from_resume(text)
-        name = extract_name_from_resume(text)
 
-        # Extract projects and experience
-        projects = extract_projects_from_resume(text)  # Assuming this function exists
-        experience = extract_experience_from_resume(text)  # Assuming this function exists
+        # Get personalized recommendations from Gemini
+        try:
+            genai.configure(api_key=os.getenv("GOOGLE_GENAI_API_KEY"))
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            prompt = f"only Provide 5 personalized resume improving recommendations based on this resume text no extra information where each recommendation is seprated by newline character : {text}"
+            response = model.generate_content(prompt)
+            recommendations = [line.strip() for line in response.text.split('\n') if line.strip()]
+
+            personalized_recommendations = response.text.split('\n')
+            
+        except Exception as e:
+            recommendations = [f"Error fetching recommendations: {str(e)}"]
 
         return render_template(
             'resume.html',
@@ -296,11 +310,11 @@ def pred():
             email=email,
             extracted_skills=extracted_skills,
             extracted_education=extracted_education,
-            projects=projects,
-            experience=experience,
+            personalized_recommendations=recommendations  # Pass this correctly
+
         )
     else:
-        return render_template("resume.html", message="No resume file uploaded.")
+        return render_template('resume.html', message="No file uploaded. Please try again.")
 
 
 if __name__ == '__main__':

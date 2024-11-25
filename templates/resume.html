@@ -301,6 +301,15 @@
                     {% endfor %}
                 </ul>
                 {% endif %}
+                {% if personalized_recommendations %}
+        <h3>Personalized Job Recommendations</h3>
+        <ul>
+            {% for recommendation in personalized_recommendations %}
+            <li>{{ recommendation }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
             </div>
             {% endif %}
         </div>
