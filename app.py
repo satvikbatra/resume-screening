@@ -55,6 +55,21 @@ def pdf_to_text(file):
 # resume parsing
 import re
 
+# def get_ATS(text):
+#     try:
+#             genai.configure(api_key=os.getenv("GOOGLE_GENAI_API_KEY"))
+#             model = genai.GenerativeModel("gemini-1.5-flash")
+#             prompt = f"Read the complete resume and then give back only sigle ATS score and nothing else from the resume :{text}"
+#             response = model.generate_content(prompt)
+            
+#             return projects
+
+#             personalized_recommendations = response.text.split('\n')
+            
+#     except Exception as e:
+#             recommendations = [f"Error fetching ATS: {str(e)}"]
+    
+
 def extract_contact_number_from_resume(text):
     contact_number = None
 
@@ -230,24 +245,38 @@ def extract_name_from_resume(text):
 
 # Add new functions to extract projects and experience
 def extract_projects_from_resume(text):
-    projects = []
+    try:
+            genai.configure(api_key=os.getenv("GOOGLE_GENAI_API_KEY"))
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            prompt = f"Extract the projects and their details (remove unnecessary terms such as github/deployed link) summarised  from the given text and return them and each is seprated by newline character : {text}"
+            response = model.generate_content(prompt)
+            projects = [line.strip() for line in response.text.split('\n') if line.strip()]
+            return projects
 
+            personalized_recommendations = response.text.split('\n')
+            
+    except Exception as e:
+            recommendations = [f"Error fetching projects: {str(e)}"]
+    projects = []
+    
     # Keywords or patterns to identify projects
-    project_keywords = ['project', 'projects', 'developed', 'built', 'designed', 'implemented', 'created', 'application', 'tool', 'framework']
+    project_keywords = ['project', 'built', 'developed', 'created', 'designed', 'implemented', 'application', 'tool', 'framework', 'website', 'platform', 'system']
 
     # Split text into sentences and look for project-related terms
     sentences = text.split('\n')
     for sentence in sentences:
         if any(keyword.lower() in sentence.lower() for keyword in project_keywords):
-            projects.append(sentence.strip())
+            # Check that the project description does not mention job/internship-related terms
+            if not any(keyword.lower() in sentence.lower() for keyword in ['intern', 'job', 'position', 'employment', 'responsibilities']):
+                projects.append(sentence.strip())
 
-    return projects
+    # return projects
 
 def extract_experience_from_resume(text):
     experience = []
-
+    
     # Keywords or patterns to identify experience
-    experience_keywords = ['experience', 'worked', 'intern', 'internship', 'job', 'role', 'position', 'employment', 'responsibilities']
+    experience_keywords = ['worked', 'intern', 'internship', 'job', 'position', 'employment', 'responsibilities', 'collaborated']
 
     # Split text into sentences and look for experience-related terms
     sentences = text.split('\n')
@@ -287,6 +316,18 @@ def pred():
         name = extract_name_from_resume(text)
         extracted_skills = extract_skills_from_resume(text)
         extracted_education = extract_education_from_resume(text)
+        extracted_projects=extract_projects_from_resume(text)
+        # extracted_experience=extract_experience_from_resume(text)
+
+        try:
+            genai.configure(api_key=os.getenv("GOOGLE_GENAI_API_KEY"))
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            prompt = f"Read the complete resume very precisely and deduct ATS for mistakes and grammer issues ,return only single ATS score on a scale of 0 to 100 and nothing else based on relevance and structure: {text}"
+            response = model.generate_content(prompt)
+            ats_score = response.text.strip()
+        except Exception as e:
+            ats_score = f"Error fetching ATS Score: {str(e)}"
+
 
         # Get personalized recommendations from Gemini
         try:
@@ -310,6 +351,9 @@ def pred():
             email=email,
             extracted_skills=extracted_skills,
             extracted_education=extracted_education,
+            ats_score=ats_score,
+            # experience=extracted_experience,
+            projects=extracted_projects,
             personalized_recommendations=recommendations  # Pass this correctly
 
         )

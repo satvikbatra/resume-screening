@@ -258,6 +258,12 @@
             {% if predicted_category %}
             <div class="info-section">
                 <h3>Resume Analysis Results</h3>
+                {% if ats_score %}
+                <div class="section">
+                    <h3>ATS Score</h3>
+                    <p><strong>{{ ats_score }}</strong></p>
+                </div>
+                {% endif %}
                 <p><strong>Category:</strong> {{ predicted_category }}</p>
                 <p><strong>Recommended Job:</strong> {{ recommended_job }}</p>
                 <hr>
@@ -293,6 +299,7 @@
                 </ul>
                 {% endif %}
 
+
                 {% if experience %}
                 <h3>Experience</h3>
                 <ul>
@@ -302,7 +309,7 @@
                 </ul>
                 {% endif %}
                 {% if personalized_recommendations %}
-        <h3>Personalized Job Recommendations</h3>
+        <h3>Personalized Resume Recommendations</h3>
         <ul>
             {% for recommendation in personalized_recommendations %}
             <li>{{ recommendation }}</li>
